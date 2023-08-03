@@ -1,14 +1,15 @@
+from http.client import HTTPResponse
 from django.shortcuts import render
+from youtube_transcript_api import YouTubeTranscriptApi
+from django.views.decorators.http import require_http_methods
+
 
 # youtube_bot/views.py
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from youtube_transcript_api_2 import YouTubeTranscriptApi
 from .utils import seconds_to_hms, get_completion_from_messages
 
 # ... rest of the views code ...
 
-@api_view(['POST'])
+@require_http_methods(["POST"])
 def get_subtitle_text(request):
     video_url = request.data.get('video_url')
     try:
@@ -20,7 +21,7 @@ def get_subtitle_text(request):
             end_time = seconds_to_hms(subtitle['duration'])
             subtitle_text += f"{start_time} - {end_time}: {subtitle['text']} ;"
     except Exception as e:
-        return Response({'error': f"Error: {e}"}, status=400)
+        return HTTPResponse({'error': f"Error: {e}"}, status=400)
 
     context = [
         {'role': 'system', 'content': f"""
@@ -38,6 +39,6 @@ def get_subtitle_text(request):
         response = get_completion_from_messages(question, context)
         responses.append(response)
 
-    return Response({'responses': responses}, status=200)
+    return HTTPResponse({'responses': responses}, status=200)
 
 # Create your views here.
