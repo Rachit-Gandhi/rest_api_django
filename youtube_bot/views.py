@@ -42,3 +42,5 @@ def get_subtitle_text(request):
     return HTTPResponse({'responses': responses}, status=200)
 
 # Create your views here.
+def render_home_page(request):
+    return render(request, 'index.html', {})
